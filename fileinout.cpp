@@ -21,14 +21,15 @@ namespace fs = std::filesystem;
 
 class FileInOut {
     private:
-        time_t last_backup = -1;
-        std::vector<std::string> backup_paths;
-        std::string file_in;
-        std::string backup_location;
+        time_t last_backup = -1; // time of last backup
+        std::vector<std::string> backup_paths; // all the paths
+        std::string backup_path; // backup file
+
         void copy_folder (const fs::path&, const fs::path&);
         std::string get_time();
     public:
-        int read_backup(const char*);
+        FileInOut();
+        int read_backup();
         void backup(const char*, const char*);
         void add_backup(const char*);
         time_t modify_time(const std::string&);
@@ -55,14 +56,21 @@ std::string FileInOut::get_time() {
 }
 
 /**
-* Reads lines containing backup locations from the file and into vector
+ * Constructor
+ */
+FileInOut::FileInOut() {
+    backup_path = "./back.txt";
+}
+
+/**
+* Reads backup paths from the file and into vector
 * Return 1 if reading file failed.
 */
-int FileInOut::read_backup(const char *file_in) {
+int FileInOut::read_backup() {
     std::fstream file;
-    file.open(file_in, std::fstream::in);
+    file.open(backup_path, std::fstream::in);
     if (file.fail()) { 
-        std::cerr << "Encountered error reading file '" << file_in << "'." << std::endl;
+        std::cerr << "Encountered error reading backup paths." << std::endl;
         return 1; 
     }
     while (!file.eof()) {
@@ -87,20 +95,20 @@ void FileInOut::backup(const char *source, const char *location) {
 }
 
 /**
-* Adds new file location to the list of backups
+* Adds new file path to the list of backups
 */
-void FileInOut::add_backup(const char* location) {
+void FileInOut::add_backup(const char* path) {
     std::fstream file;
-    file.open(location, std::fstream::in);
+    file.open(path, std::fstream::in);
     file.close();
     // Check if file exists
     if (file.fail()) {
-        std::cerr << "Input file '" << location << "' does not exist." << std::endl;
+        std::cerr << "Input file '" << path << "' does not exist." << std::endl;
         return; 
     }
     // Will create new file if the file doesn't exist
-    file.open("maha.txt", std::fstream::app);
-    file << location << std::endl;
+    file.open(backup_path, std::fstream::app);
+    file << path << std::endl;
     file.close();
 }
 
