@@ -1,9 +1,8 @@
+#include "fileinout.h"
 #include <fstream> // io file
 #include <iostream> // input output
-#include <filesystem> // traversing files
-#include <ostream>
 #include <sstream> // string stream
-#include <system_error>
+#include <filesystem> // traversing files
 #include <vector> // std::vector
 
 
@@ -22,32 +21,8 @@
 #endif
 // }
 
-
 namespace fs = std::filesystem;
-//namespace chrono = std::chrono;
 
-class FileInOut {
-    private:
-        time_t last_backup = -1; // time of last backup
-        std::vector<fs::path> backup_paths; // all the paths
-        fs::path backup_addr; // backup file
-        fs::path backup_dest; // destination of backups
-
-        std::error_code copy_folder (const fs::path&, const fs::path&);
-        std::string get_time();
-    public:
-        FileInOut();
-        int read_backup();
-        void backup();
-        void add_backup(const fs::path);
-        time_t modify_time(const std::string&);
-};
-
-
-/**
-* Recursively copies the contents of the source folder into the destination
-* folder. Returns 0 or an error code depending on if the operation was successful
-*/
 std::error_code FileInOut::copy_folder(const fs::path &source, const fs::path &destination) {
     std::error_code error;
     if (!source.is_absolute() || !destination.is_absolute()) {
@@ -59,9 +34,6 @@ std::error_code FileInOut::copy_folder(const fs::path &source, const fs::path &d
 }
 
 
-/**
-* Get current local time in yyyymmdd_hhmm format
-*/
 std::string FileInOut::get_time() {
     std::time_t t = std::time(nullptr);
     std::stringstream ss;
@@ -72,34 +44,46 @@ std::string FileInOut::get_time() {
 }
 
 
-/**
- * Default constructor
- */
 FileInOut::FileInOut() {
     fs::path default_addr = "./back.txt";
     fs::path default_dest = "./testfolder"; // TODO: placeholder
-    std::error_code error;
-    backup_addr = fs::canonical(default_addr, error);
-    if (error) {
-        std::cout << "Backup file doesn't exist. Creating a new file." << std::endl;
-        backup_addr = fs::weakly_canonical(default_addr, error);
-        backup_dest = fs::weakly_canonical(default_dest, error);
-        if (error) { 
-            std::cerr << "Unexpected error:" << error << std::endl;
-        }
+    std::error_code error1;
+    std::error_code error2;
+    backup_addr = fs::canonical(default_addr, error1);
+    backup_dest = fs::canonical(default_dest, error2);
+    if (error1) {
+        std::cout << "Backup file isn't in correct format." << std::endl;
+        // TODO: replace with proper handling
+        exit(1);
+    }
+    if (!fs::exists(backup_addr)) {
+        std::cout << "File containing backups doesn't exist. Creating" << std::endl;
         std::fstream file;
         file.open(backup_addr, std::fstream::app);
-        file << "" << std::endl;
+        if (file.fail()) {
+            std::cerr << "Folder containing the file doesn't exist." << std::endl;
+            // TODO: replace with proper handling
+            exit(1);
+        }
         file.close();
+    }
+    if (error2) {
+        std::cout << "Backup folder isn't in correct format." << std::endl;
+        // TODO: replace with proper handling
+        exit(1);
+    }
+    if (!fs::exists(backup_dest)) {
+        if (!fs::create_directory(backup_dest)) {
+            std::cout << "Unable to create directory." << std::endl;
+            // TODO: replace with proper handling
+            exit(1);
+        }
+        
     }
     
 }
 
 
-/**
-* Reads backup paths from the file and into vector
-* Return 1 if reading file failed.
-*/
 int FileInOut::read_backup() {
     std::fstream file;
     file.open(backup_addr, std::fstream::in);
@@ -112,7 +96,7 @@ int FileInOut::read_backup() {
         std::getline(file, buffer);
         fs::path p = buffer; 
         std::error_code error;
-        fs::canonical(p, error);
+        fs::absolute(p, error);
         if (error) {
             std::cerr << "Invalid file location: " << p << std::endl;
             continue;
@@ -124,9 +108,6 @@ int FileInOut::read_backup() {
 }
     
 
-/**
-* Recursively copies folder and it's contents to another location
-*/
 void FileInOut::backup() {
     time_t current_time = std::time(nullptr);
     unsigned count = 0;
@@ -152,10 +133,9 @@ void FileInOut::backup() {
 }
 
 
-/**
-* Adds new file path to the list of backups
-*/
-void FileInOut::add_backup(const fs::path path) {
+void FileInOut::add_backup(const std::string path) {
+    fs::path p_path = path;
+    
     std::fstream file;
     file.open(path, std::fstream::in);
     file.close();
@@ -171,10 +151,7 @@ void FileInOut::add_backup(const fs::path path) {
 }
 
 
-/**
- * Returns the date and time of the last modification done to a given file 
- * in time_t format.
- */
+
 time_t FileInOut::modify_time(const std::string &path) {
     /* Does not work until compiler supports C++20 >:c
        Would've been platform wide way to obtain time_t value
@@ -189,15 +166,4 @@ time_t FileInOut::modify_time(const std::string &path) {
         return mod_time;
     }
     return -1;
-}
-
-
-int main() {
-    FileInOut fio;
-    //add_backup();
-    //fio.add_backup("./zika/zika.txt");
-    //if (0<fio.read_backup("osoitteita.txt")) {std::cout << "error";}
-    //fio.backup("aha", "zika");
-    //std::cout << fio.modify_time("maha.txt") << std::endl ;
-    return 0;
 }
