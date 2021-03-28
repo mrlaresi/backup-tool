@@ -16,21 +16,6 @@ class FileInOut {
         /** destination of backups */ 
         std::filesystem::path backup_dest;
 
-        /**
-        * Recursively copies the contents of the source folder into the 
-        * destination folder. 
-        * @param path1 Folder to be copied
-        * @param path2 Location where path1 will be copied to
-        * @return std::error_code
-        */
-        std::error_code copy_folder (const std::filesystem::path&, const std::filesystem::path&);
-        
-        /**
-        * Get current local time
-        * @return local time in yyyymmdd_hhmm format
-        */
-        std::string get_time();
-
 
     public:
         /** Default constructor */
@@ -49,7 +34,7 @@ class FileInOut {
         * Adds new file path to the list of backups
         * @param string1 path to a folder or a file
         */
-        void add_backup(const std::string);
+        void add_backup(const std::string&);
 
         /**
         * Returns the date and time of the last modification done to a given file 
@@ -57,6 +42,23 @@ class FileInOut {
         * @param string1 path to a folder or a file
         */
         time_t modify_time(const std::string&);
+
+
+    private:
+        /**
+        * Recursively copies the contents of the source folder into the 
+        * destination folder. 
+        * @param path1 Folder to be copied
+        * @param path2 Location where path1 will be copied to
+        * @return std::error_code
+        */
+        std::error_code copy_folder (const std::filesystem::path&, const std::filesystem::path&);
+        
+        /**
+        * Get current local time
+        * @return local time in yyyymmdd_hhmm format
+        */
+        std::string get_time();
 };
 
 #endif
