@@ -1,5 +1,5 @@
-#ifndef FILEINOUT_H
-#define FILEINOUT_H
+#ifndef BACKUP_FILEINOUT_H
+#define BACKUP_FILEINOUT_H
 
 #include <filesystem> // traversing files
 #include <vector> // std::vector
@@ -32,9 +32,9 @@ class FileInOut {
 
         /**
         * Adds new file path to the list of backups
-        * @param string1 path to a folder or a file
+        * @param path path to a folder or a file
         */
-        void add_backup(const std::string&);
+        void add_backup(const std::filesystem::path&);
 
         /**
         * Returns the date and time of the last modification done to a given file 

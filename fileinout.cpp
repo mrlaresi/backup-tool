@@ -2,8 +2,8 @@
 #include <fstream> // io file
 #include <iostream> // input output
 #include <sstream> // string stream
-//#include <filesystem> // traversing files
-//#include <vector> // std::vector
+#include <filesystem> // traversing files
+#include <vector> // std::vector
 
 
 // Until C++20 standard gets implimented in compilers:
@@ -116,21 +116,13 @@ void FileInOut::backup() {
 }
 
 
-void FileInOut::add_backup(const std::string& path) {
-    fs::path p_path = path;
-    std::error_code error;
-    p_path = fs::canonical(p_path, error);
-    if (error) {
-        std::cerr << "Input file '" << path << "' does not exist." << std::endl;
-        return;
-    }
-
+void FileInOut::add_backup(const fs::path& path) {
     std::fstream file;
     // Will create new file if the file doesn't exist
     file.open(backup_addr, std::fstream::app);
-    file << p_path.string() << std::endl;
+    file << path.string() << std::endl;
     file.close();
-    std::cout << "Added filepath " << p_path.string() << std::endl;
+    std::cout << "Added filepath " << path.string() << std::endl;
 }
 
 
