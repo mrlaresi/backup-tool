@@ -6,9 +6,7 @@
 
 class NoGui {
     private:
-        FileInOut fio;
         Core core;
-
 
     public:
         /** Default constructor */
@@ -19,7 +17,7 @@ class NoGui {
 
         void add_backup(const std::vector<std::string>&);
 
-        void remove_backup(const std::string&);
+        void remove_backup(const std::vector<std::string>&);
 
         /** 
          * Handle user input from cin

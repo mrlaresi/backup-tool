@@ -4,13 +4,12 @@
 
 
 NoGui::NoGui() {
-    fio.read_backup();   
-
+    core.read_backup();   
 }
 
 
 void NoGui::backup() {
-    fio.backup();
+    core.backup();
 }
 
 
@@ -19,9 +18,9 @@ void NoGui::add_backup(const std::vector<std::string>& input) {
 }
 
 
-/*void NoGui::remove_backup(const std::string& input) {
-    Validator::validate();
-}*/
+void NoGui::remove_backup(const std::vector<std::string>& input) {
+    core.remove_backup(input);
+}
 
 
 std::vector<std::string> NoGui::get_input() {
@@ -56,6 +55,7 @@ int NoGui::nogui_loop() {
         else if (answer[0] == "backup") { this->backup(); }
         else if (answer[0] == "add") { this->add_backup(answer); }
         else if (answer[0] == "help") { this->help(); }
+        else if (answer[0] == "remove") { this->remove_backup(answer); }
         else { std::cout << "Unknown input" << std::endl; }
     }
     return 1;

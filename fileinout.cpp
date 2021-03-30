@@ -4,6 +4,7 @@
 #include <sstream> // string stream
 #include <filesystem> // traversing files
 #include <vector> // std::vector
+#include <algorithm> // std::find
 
 
 // Until C++20 standard gets implimented in compilers:
@@ -94,6 +95,9 @@ void FileInOut::backup() {
     unsigned skip = 0;
     fs::path folder_name = get_time();
     std::cout << "Performing backup on " << backup_paths.size() << " folders.\n";
+    for (unsigned i = 0; i < backup_paths.size(); i++) {
+        std::cout << backup_paths[i].string()<< "\n";
+    }
 
     for (unsigned i = 0; i < backup_paths.size(); i++) {
         // Do nothing if file hasn't been modified
@@ -117,12 +121,38 @@ void FileInOut::backup() {
 
 
 void FileInOut::add_backup(const fs::path& path) {
+    auto it = exists(path);
+    if (it != backup_paths.end()) {
+        return; //TODO: terminal output
+    }
     std::fstream file;
     // Will create new file if the file doesn't exist
-    file.open(backup_addr, std::fstream::app);
-    file << path.string() << std::endl;
+    file.open(backup_addr, std::fstream::out | std::fstream::app);
+    file << path.string() << "\n";
     file.close();
+    backup_paths.push_back(path);
     std::cout << "Added filepath " << path.string() << std::endl;
+}
+
+
+void FileInOut::remove_backup(const fs::path& path) {
+    auto it = exists(path);
+    if (it != backup_paths.end()) {
+        backup_paths.erase(it);
+        std::cout << "Removed filepath " << path.string() << "\n";
+    }
+    update_file();
+}
+
+
+void FileInOut::update_file() {
+    std::fstream file;
+    file.open(backup_addr, std::fstream::out | std::fstream::trunc);
+    for (unsigned i = 0; i < backup_paths.size(); i++) {
+        file << backup_paths[i].string() << "\n";
+    }
+    file.close();
+    std::cout << "Refreshed backup file.\n";
 }
 
 
@@ -160,4 +190,9 @@ std::string FileInOut::get_time() {
     std::string ret;
     ss >> ret;
     return ret;
+}
+
+std::vector<fs::path>::iterator FileInOut::exists(const fs::path& path) {
+    std::vector<fs::path>::iterator it = std::find(backup_paths.begin(), backup_paths.end(), path);
+    return it;
 }

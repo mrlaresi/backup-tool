@@ -9,8 +9,10 @@ class Core {
         FileInOut fio;
     public:
         Core();
+        int read_backup();
+        int backup();
         int add_backup(const std::vector<std::string>&);
-        int remove_backup(std::vector<std::string>&);
+        int remove_backup(const std::vector<std::string>&);
     private:
 };
 

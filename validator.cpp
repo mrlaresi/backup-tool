@@ -15,7 +15,7 @@ int Validator::validate_command(const std::string& input) {
 std::filesystem::path Validator::validate_path(const std::string& input) {
     std::filesystem::path p = input;
     std::error_code error;
-    std::filesystem::canonical(p, error);
+    p = std::filesystem::canonical(p, error);
     if (error) { p = ""; return p; }
     return p;
 }

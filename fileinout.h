@@ -37,14 +37,22 @@ class FileInOut {
         void add_backup(const std::filesystem::path&);
 
         /**
+         * Removes file path from the list of backups
+         * @param path path to a folder or a file
+         */
+        void remove_backup(const std::filesystem::path&);
+
+
+    private:
+        void update_file();
+        
+        /**
         * Returns the date and time of the last modification done to a given file 
         * in time_t format.
         * @param string1 path to a folder or a file
         */
         time_t modify_time(const std::string&);
 
-
-    private:
         /**
         * Recursively copies the contents of the source folder into the 
         * destination folder. 
@@ -59,6 +67,14 @@ class FileInOut {
         * @return local time in yyyymmdd_hhmm format
         */
         std::string get_time();
+
+        /**
+         * Check if given filepath already exists on the list of paths to 
+         * be backed up.
+         * @param path path to a folder or a file
+         * @return Iterator pointing to found item or vector<T>.end()
+         */
+        std::vector<std::filesystem::path>::iterator exists(const std::filesystem::path&);
 };
 
 #endif
