@@ -1,10 +1,14 @@
 #include "nogui.h"
 #include "core.h"
 #include <iostream>
+#include <filesystem>
 
 
 NoGui::NoGui() {
-    core.read_backup();   
+    if (!core.is_first()) {
+        this->first_time();
+    }
+    core.load_settings();
 }
 
 
@@ -43,6 +47,7 @@ void NoGui::help() {
     std::cout << "  exit: terminates the program\n";
     std::cout << "  backup: backups files\n";
     std::cout << "  add <path>: adds given filepath to list of files which will be backed up\n";
+    std::cout << "  remove <path>: removes given filepath from the list of files";
     std::cout << "  help: prints this help text" << std::endl;
 }
 
@@ -54,11 +59,28 @@ int NoGui::nogui_loop() {
         if (answer[0] == "exit") { break; }
         else if (answer[0] == "backup") { this->backup(); }
         else if (answer[0] == "add") { this->add_backup(answer); }
-        else if (answer[0] == "help") { this->help(); }
         else if (answer[0] == "remove") { this->remove_backup(answer); }
+        else if (answer[0] == "help") { this->help(); }
         else { std::cout << "Unknown input" << std::endl; }
     }
     return 1;
+}
+
+
+void NoGui::first_time() {
+    std::cout << "Looks like you started the program for the first time.\n";
+    std::cout << "Insert the filepath where you would like to store your backups.\n";
+    while (true) {
+        std::cout << "> ";
+        std::string input;
+        std::cin >> input;
+        int b = core.parse_input("destination=", input);
+        if (b) {
+            break;
+        }
+        std::cout << "Invalid filepath.\n";
+    }
+    //core.set_backup(p);
 }
 
 

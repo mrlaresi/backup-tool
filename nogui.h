@@ -28,6 +28,9 @@ class NoGui {
         void help();
 
         int nogui_loop();
+
+    private:
+        void first_time();
 };
 
 #endif

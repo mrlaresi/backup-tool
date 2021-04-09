@@ -7,11 +7,28 @@
 
 class Validator {
     public:
-        static std::filesystem::path validate(const std::vector<std::string>&);
+        /**
+        * Check if filepath exists
+        * @param input filepath 
+        * @return filepath in canonical form or a empty filepath
+        */ 
         static std::filesystem::path validate_path(const std::string&);
+
+        /** 
+        * Check if filepath points to a existing file 
+        * @param input filepath to a file
+        * @return 1 if filepath points to a file, otherwise 0
+        */
+        static int validate_file(const std::filesystem::path& path);
+
+
     private:
-        int validate_command(const std::string&);
-        
+        /**
+        * Converts given filepath to canonical form
+        * @param path filepath
+        * @return canonical filepath or a empty filepath
+        */
+        static std::filesystem::path canonical(const std::filesystem::path& path);
 };
 
 #endif

@@ -21,12 +21,6 @@ class FileInOut {
         /** Default constructor */
         FileInOut();
 
-        /**
-        * Reads backup paths from the file 'backup_addr'
-        * @return 1 if reading file failed, otherwise 0.
-        */
-        int read_backup();
-
         /** Recursively copies folder and it's contents to 'backup_dest'. */
         void backup();
 
@@ -37,27 +31,49 @@ class FileInOut {
         void add_backup(const std::filesystem::path&);
 
         /**
-         * Removes file path from the list of backups
-         * @param path path to a folder or a file
-         */
+        * Removes file path from the list of backups
+        * @param path path to a folder or a file
+        */
         void remove_backup(const std::filesystem::path&);
+
+        /**
+        * Sets backup location
+        * @param path filepath
+        */
+        void set_backup(const std::filesystem::path&);
+
+        /**
+        * Read lines from file into a vector
+        * @param path filepath
+        * @return lines from the file in inside a vector
+        */
+        std::vector<std::string> read_file(const std::filesystem::path&);
 
 
     private:
+        /**
+        * Reads backup paths from the file 'backup_addr'
+        * @return 1 if reading file failed, otherwise 0.
+        */
+        int read_backup();
+
+        /**
+        * Writes filepaths currently in memory to the backup file
+        */
         void update_file();
         
         /**
         * Returns the date and time of the last modification done to a given file 
         * in time_t format.
-        * @param string1 path to a folder or a file
+        * @param path path to a folder or a file
         */
         time_t modify_time(const std::string&);
 
         /**
         * Recursively copies the contents of the source folder into the 
         * destination folder. 
-        * @param path1 Folder to be copied
-        * @param path2 Location where path1 will be copied to
+        * @param source Folder to be copied
+        * @param destination Location where path1 will be copied to
         * @return std::error_code
         */
         std::error_code copy_folder (const std::filesystem::path&, const std::filesystem::path&);
@@ -69,11 +85,11 @@ class FileInOut {
         std::string get_time();
 
         /**
-         * Check if given filepath already exists on the list of paths to 
-         * be backed up.
-         * @param path path to a folder or a file
-         * @return Iterator pointing to found item or vector<T>.end()
-         */
+        * Check if given filepath already exists on the list of paths to 
+        * be backed up.
+        * @param path path to a folder or a file
+        * @return Iterator pointing to found item or vector<T>.end()
+        */
         std::vector<std::filesystem::path>::iterator exists(const std::filesystem::path&);
 };
 

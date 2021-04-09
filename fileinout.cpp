@@ -25,7 +25,7 @@
 namespace fs = std::filesystem;
 
 
-FileInOut::FileInOut() {
+FileInOut::FileInOut() { //TODO: simplify constructor
     fs::path default_addr = "./back.txt";
     fs::path default_dest = "./testfolder"; // TODO: placeholder
     std::error_code error1;
@@ -63,30 +63,6 @@ FileInOut::FileInOut() {
     }
     
 }
-
-
-int FileInOut::read_backup() {
-    std::fstream file;
-    file.open(backup_addr, std::fstream::in);
-    if (file.fail()) { 
-        std::cerr << "Encountered error reading backup paths." << std::endl;
-        return 1; 
-    }
-    while (!file.eof()) {
-        std::string buffer;
-        std::getline(file, buffer);
-        fs::path p = buffer; 
-        std::error_code error;
-        fs::absolute(p, error);
-        if (error) {
-            std::cerr << "Invalid file location: " << p << std::endl;
-            continue;
-        }
-        backup_paths.push_back(p);
-    }
-    file.close();
-    return 0;
-}
     
 
 void FileInOut::backup() {
@@ -94,7 +70,7 @@ void FileInOut::backup() {
     unsigned count = 0;
     unsigned skip = 0;
     fs::path folder_name = get_time();
-    std::cout << "Performing backup on " << backup_paths.size() << " folders.\n";
+    std::cout << "Performing backup on " << backup_paths.size() << " locations.\n";
     for (unsigned i = 0; i < backup_paths.size(); i++) {
         std::cout << backup_paths[i].string()<< "\n";
     }
@@ -123,6 +99,7 @@ void FileInOut::backup() {
 void FileInOut::add_backup(const fs::path& path) {
     auto it = exists(path);
     if (it != backup_paths.end()) {
+        std::cout << "Filepath already exists on the list. No changes were made.\n";
         return; //TODO: terminal output
     }
     std::fstream file;
@@ -142,6 +119,49 @@ void FileInOut::remove_backup(const fs::path& path) {
         std::cout << "Removed filepath " << path.string() << "\n";
     }
     update_file();
+}
+
+
+void FileInOut::set_backup(const fs::path& path) {
+    backup_dest = path;
+}
+
+
+std::vector<std::string> FileInOut::read_file(const fs::path& path) {
+    std::fstream file;
+    std::vector<std::string> lines;
+    file.open(path, std::fstream::in);
+
+    if (file.fail()) { 
+        std::cerr << "Encountered error reading backup paths." << std::endl;
+        return lines; 
+    }
+
+    while (!file.eof()) {
+        std::string buffer;
+        std::getline(file, buffer);
+        lines.push_back(buffer);
+    }
+    return lines;
+}
+
+
+int FileInOut::read_backup() {
+    std::fstream file;
+    fs::path p;
+    std::error_code error;
+    std::vector<std::string> lines = this->read_file(backup_addr);
+    for (unsigned i = 0; i < lines.size(); i++) {
+        p = lines[i]; 
+        fs::canonical(p, error);
+        if (error) {
+            std::cerr << "Invalid file location: " << p << std::endl;
+            continue;
+        }
+        backup_paths.push_back(p);
+    }
+    file.close();
+    return 0;
 }
 
 
@@ -174,10 +194,6 @@ time_t FileInOut::modify_time(const std::string &path) {
 
 std::error_code FileInOut::copy_folder(const fs::path &source, const fs::path &destination) {
     std::error_code error;
-    if (!source.is_absolute() || !destination.is_absolute()) {
-        // Should never be reached
-        throw "Either source or destination of operation 'copy_folder' is not absolute path.";
-    }
     fs::copy(source, destination, fs::copy_options::recursive, error);
     return error;
 }
