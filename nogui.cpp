@@ -1,23 +1,33 @@
 #include "nogui.h"
+#include "core.h"
 #include <iostream>
+#include <filesystem>
 
 
 NoGui::NoGui() {
-    fio.read_backup();    
+    if (!core.is_first()) {
+        this->first_time();
+    }
+    core.load_settings();
 }
 
 
 void NoGui::backup() {
-    fio.backup();
+    core.backup();
 }
 
 
 void NoGui::add_backup(const std::vector<std::string>& input) {
-    if (input.size() < 2) { 
-        std::cerr << "Invalid input for command 'add'" << std::endl; 
-        return;
+    if (!core.add_backup(input)) {
+        //std::cout << "Filepath doesn't exist. No changes were made.\n";
     }
-    fio.add_backup(input[1]);
+}
+
+
+void NoGui::remove_backup(const std::vector<std::string>& input) {
+    if (!core.remove_backup(input)) {
+        std::cout << "Filepath isn't on the list. No changes were made\n";
+    }
 }
 
 
@@ -41,21 +51,44 @@ void NoGui::help() {
     std::cout << "  exit: terminates the program\n";
     std::cout << "  backup: backups files\n";
     std::cout << "  add <path>: adds given filepath to list of files which will be backed up\n";
+    std::cout << "  remove <path>: removes given filepath from the list of files";
     std::cout << "  help: prints this help text" << std::endl;
+}
+
+int NoGui::nogui_loop() {
+    std::cout << "Type 'help' to see all available commands.\nType 'exit' to exit the program." << std::endl;
+    std::vector<std::string> answer;
+    while (true) {
+        answer = this->get_input();
+        if (answer[0] == "exit") { break; }
+        else if (answer[0] == "backup") { this->backup(); }
+        else if (answer[0] == "add") { this->add_backup(answer); }
+        else if (answer[0] == "remove") { this->remove_backup(answer); }
+        else if (answer[0] == "help") { this->help(); }
+        else { std::cout << "Unknown input" << std::endl; }
+    }
+    return 1;
+}
+
+
+void NoGui::first_time() {
+    std::cout << "Looks like you started the program for the first time.\n";
+    std::cout << "Insert the filepath where you would like to store your backups.\n";
+    while (true) {
+        std::cout << "> ";
+        std::string input;
+        std::cin >> input;
+        int b = core.parse_input("destination=", input);
+        if (b) {
+            break;
+        }
+        std::cout << "Invalid filepath.\n";
+    }
+    //core.set_backup(p);
 }
 
 
 int main() {
     NoGui g;
-    std::cout << "Type 'help' to see all available commands.\nType 'exit' to exit the program." << std::endl;
-    std::vector<std::string> answer;
-    while (true) {
-        answer = g.get_input();
-        if (answer[0] == "exit") { break; }
-        else if (answer[0] == "backup") { g.backup(); }
-        else if (answer[0] == "add") { g.add_backup(answer); }
-        else if (answer[0] == "help") { g.help(); }
-        else { std::cout << "Unknown input" << std::endl; }
-    }
-    return 0;
+    g.nogui_loop();   
 }

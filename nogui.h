@@ -1,12 +1,12 @@
-#ifndef NOGUI_H
-#define NOGUI_H
+#ifndef BACKUP_NOGUI_H
+#define BACKUP_NOGUI_H
 
-#include "fileinout.h"
+#include "core.h"
+#include <vector>
 
 class NoGui {
     private:
-        FileInOut fio;
-
+        Core core;
 
     public:
         /** Default constructor */
@@ -17,6 +17,8 @@ class NoGui {
 
         void add_backup(const std::vector<std::string>&);
 
+        void remove_backup(const std::vector<std::string>&);
+
         /** 
          * Handle user input from cin
          * @return vector containing user input split from whitespaces
@@ -24,6 +26,11 @@ class NoGui {
         std::vector<std::string> get_input();
 
         void help();
+
+        int nogui_loop();
+
+    private:
+        void first_time();
 };
 
 #endif
