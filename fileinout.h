@@ -27,14 +27,16 @@ class FileInOut {
         /**
         * Adds new file path to the list of backups
         * @param path path to a folder or a file
+        * @return 1 if success, otherwise 0
         */
-        void add_backup(const std::filesystem::path&);
+        int add_backup(const std::filesystem::path&);
 
         /**
         * Removes file path from the list of backups
         * @param path path to a folder or a file
+        * @return 1 if success, otherwise 0
         */
-        void remove_backup(const std::filesystem::path&);
+        int remove_backup(const std::filesystem::path&);
 
         /**
         * Sets backup location

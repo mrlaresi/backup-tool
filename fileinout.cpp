@@ -61,6 +61,7 @@ FileInOut::FileInOut() { //TODO: simplify constructor
         }
         
     }
+    read_backup();
     
 }
     
@@ -96,11 +97,11 @@ void FileInOut::backup() {
 }
 
 
-void FileInOut::add_backup(const fs::path& path) {
+int FileInOut::add_backup(const fs::path& path) {
     auto it = exists(path);
     if (it != backup_paths.end()) {
         std::cout << "Filepath already exists on the list. No changes were made.\n";
-        return; //TODO: terminal output
+        return 0;
     }
     std::fstream file;
     // Will create new file if the file doesn't exist
@@ -109,16 +110,19 @@ void FileInOut::add_backup(const fs::path& path) {
     file.close();
     backup_paths.push_back(path);
     std::cout << "Added filepath " << path.string() << std::endl;
+    return 1;
 }
 
 
-void FileInOut::remove_backup(const fs::path& path) {
+int FileInOut::remove_backup(const fs::path& path) {
     auto it = exists(path);
-    if (it != backup_paths.end()) {
-        backup_paths.erase(it);
-        std::cout << "Removed filepath " << path.string() << "\n";
+    if (it == backup_paths.end()) {
+        return 0; 
     }
+    backup_paths.erase(it);
+    std::cout << "Removed filepath " << path.string() << "\n";
     update_file();
+    return 1;
 }
 
 

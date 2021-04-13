@@ -18,12 +18,16 @@ void NoGui::backup() {
 
 
 void NoGui::add_backup(const std::vector<std::string>& input) {
-    core.add_backup(input);
+    if (!core.add_backup(input)) {
+        //std::cout << "Filepath doesn't exist. No changes were made.\n";
+    }
 }
 
 
 void NoGui::remove_backup(const std::vector<std::string>& input) {
-    core.remove_backup(input);
+    if (!core.remove_backup(input)) {
+        std::cout << "Filepath isn't on the list. No changes were made\n";
+    }
 }
 
 
