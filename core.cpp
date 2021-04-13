@@ -4,6 +4,7 @@
 
 namespace fs = std::filesystem;
 
+fs::path settings = "./settings.ini";
 
 Core::Core() {
 
@@ -11,14 +12,13 @@ Core::Core() {
 
 
 int Core::load_settings() {
-    fs::path p = "./settings.ini";
     std::error_code error;
-    fs::canonical(p, error);
+    settings = Validator::validate_path(settings);
     if (error) {
         //first_time();
         return 0;
     }
-    std::vector<std::string> content = fio.read_file(p);
+    std::vector<std::string> content = fio.read_file(settings);
     for (int i = 0; i < content.size(); i++) {
         std::cout << content[i] << "\n";
     }
@@ -28,8 +28,7 @@ int Core::load_settings() {
 
 int Core::is_first() {
     // TODO: replace with some other location in the future?
-    fs::path p = "./settings.ini";
-    return Validator::validate_file(p);
+    return Validator::validate_file(settings);
 }
 
 

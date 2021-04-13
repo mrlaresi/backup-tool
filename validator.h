@@ -21,6 +21,21 @@ class Validator {
         */
         static int validate_file(const std::filesystem::path& path);
 
+        /**
+        * Check if filepath points to a existing directory
+        * @param input filepath to a file
+        * @return 1 if directory, otherwise 0
+        */
+        static int validate_directory(const std::filesystem::path& path);
+
+
+        /**
+        * Check if filepath has parent directory
+        * @param input filepath to a file
+        * @return 1 if has parent, otherwise 0
+        */
+        static int has_parent(const std::filesystem::path& path);
+
 
     private:
         /**

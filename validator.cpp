@@ -15,6 +15,20 @@ int Validator::validate_file(const std::filesystem::path& path) {
 }
 
 
+int Validator::validate_directory(const std::filesystem::path& path) {
+    std::filesystem::path p = Validator::canonical(path);
+    return std::filesystem::is_directory(p);
+}
+
+
+int Validator::has_parent(const std::filesystem::path& path) {
+    std::filesystem::path p = std::filesystem::weakly_canonical(path);
+    p = Validator::canonical(p.parent_path());
+    if (p == "") { return 0; }
+    return 1;
+}
+
+
 std::filesystem::path Validator::canonical(const std::filesystem::path& path) {
     std::filesystem::path p = path;
     std::error_code error;

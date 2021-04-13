@@ -18,8 +18,12 @@ class FileInOut {
 
 
     public:
-        /** Default constructor */
-        FileInOut();
+        /** 
+        * Default constructor 
+        * @param addr filepath to file containing backups
+        * @param dest filepath to folder where backups will be made
+        */
+        FileInOut(const std::string& addr="./back.txt", const std::string& dest="./backup");
 
         /** Recursively copies folder and it's contents to 'backup_dest'. */
         void backup();
@@ -37,12 +41,7 @@ class FileInOut {
         * @return 1 if success, otherwise 0
         */
         int remove_backup(const std::filesystem::path&);
-
-        /**
-        * Sets backup location
-        * @param path filepath
-        */
-        void set_backup(const std::filesystem::path&);
+        
 
         /**
         * Read lines from file into a vector
@@ -51,13 +50,20 @@ class FileInOut {
         */
         std::vector<std::string> read_file(const std::filesystem::path&);
 
+        
+        /**
+        * Sets backup location
+        * @param path filepath
+        */
+        void set_backup(const std::filesystem::path&);
+
 
     private:
         /**
         * Reads backup paths from the file 'backup_addr'
         * @return 1 if reading file failed, otherwise 0.
         */
-        int read_backup();
+        void read_backup();
 
         /**
         * Writes filepaths currently in memory to the backup file
