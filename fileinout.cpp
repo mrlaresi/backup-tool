@@ -30,19 +30,26 @@ FileInOut::FileInOut(const std::string& addr, const std::string& dest) {
     fs::path default_dest = dest; // TODO: placeholder
     backup_addr = Validator::validate_path(default_addr);
     backup_dest = Validator::validate_path(default_dest);
-
+    fs::path parent, helper;
     if (backup_addr == "") {
-        if (Validator::has_parent(backup_addr)) {
+        parent = Validator::has_parent(addr);
+        if (parent != "") {
             std::cout << "File containing backups doesn't exist. Creating" << std::endl;
             std::fstream file;
-            file.open(backup_addr, std::fstream::app);
+            //std::cout << fs::absolute(addr) << "\n";
+            helper = addr;
+            file.open(parent / helper.filename(), std::fstream::app);
             file.close();
+            backup_addr = Validator::validate_path(default_addr);
         }
     }
     
     if (backup_dest == "") {
-        if (Validator::has_parent(backup_dest)) {
-            fs::create_directory(backup_dest);
+        parent = Validator::has_parent(addr);
+        if (parent != "") {
+            helper = dest;
+            fs::create_directory(backup_dest / helper.filename());
+            backup_dest = Validator::validate_path(default_dest);
         }
     }
     read_backup();
@@ -55,12 +62,14 @@ void FileInOut::backup() {
     unsigned skip = 0;
     fs::path folder_name = get_time();
     std::cout << "Performing backup on " << backup_paths.size() << " locations.\n";
+    // subdirectory with date and time of the backup
+    fs::create_directory(backup_dest / folder_name);
 
     for (unsigned i = 0; i < backup_paths.size(); i++) {
         // Do nothing if file hasn't been modified
         if (modify_time(backup_paths[i]) < last_backup) { skip++; continue; }
         std::cout << "Copying " << backup_paths[i] << " to " << backup_dest << "\n";
-        std::error_code error = copy_folder(backup_paths[i], backup_dest / folder_name);
+        std::error_code error = copy(backup_paths[i], backup_dest / folder_name);
         
         // Shouldn't happen unless file located at the filepath was removed
         if (error) {
@@ -126,8 +135,21 @@ std::vector<std::string> FileInOut::read_file(const fs::path& path) {
 }
 
 
-void FileInOut::set_backup(const fs::path& path) {
+void FileInOut::set_backup_dest(const fs::path& path) {
     backup_dest = path;
+}
+
+
+std::vector<std::string> FileInOut::get_backups() {
+    std::vector<std::string> stri;
+    for (unsigned i = 0; i < backup_paths.size(); i++) {
+        stri.push_back(backup_paths[i].string());
+    }
+    return stri;
+}
+
+std::string FileInOut::get_destination() {
+    return backup_dest.string();
 }
 
 
@@ -174,9 +196,13 @@ time_t FileInOut::modify_time(const std::string &path) {
     return -1;
 }
 
-std::error_code FileInOut::copy_folder(const fs::path &source, const fs::path &destination) {
+std::error_code FileInOut::copy(const fs::path &source, const fs::path &destination) {
     std::error_code error;
-    fs::copy(source, destination, fs::copy_options::recursive, error);
+    if (Validator::validate_directory(source)) {
+        fs::copy(source, destination / source.filename(), fs::copy_options::recursive, error);
+        return error;
+    }
+    fs::copy(source, destination, error);
     return error;
 }
 

@@ -19,9 +19,7 @@ int Core::load_settings() {
         return 0;
     }
     std::vector<std::string> content = fio.read_file(settings);
-    for (int i = 0; i < content.size(); i++) {
-        std::cout << content[i] << "\n";
-    }
+    set_settings(content);
     return 1;
 }
 
@@ -60,4 +58,31 @@ int Core::remove_backup(const std::vector<std::string>& inputs) {
 int Core::parse_input(const std::string& setting, const std::string& input) {
     
     return 1;
+}
+
+
+std::vector<std::string> Core::get_backups() {
+    return fio.get_backups();
+}
+
+
+std::string Core::get_destination() {
+    return fio.get_destination();
+}
+
+
+void Core::set_settings(const std::vector<std::string>& settings) {
+    std::stringstream ss;
+    std::string setting, value;
+    for (unsigned i = 0; i < settings.size(); i++) {
+        ss << settings[i];
+        ss >> setting >> value;
+        if (setting == "destination") {
+            std::filesystem::path p = Validator::validate_path(value);
+            if (p == "") { continue; }
+            fio.set_backup_dest(p);
+        }
+        // clear stringstream
+        std::stringstream().swap(ss);
+    }
 }

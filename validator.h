@@ -32,9 +32,9 @@ class Validator {
         /**
         * Check if filepath has parent directory
         * @param input filepath to a file
-        * @return 1 if has parent, otherwise 0
+        * @return filepath to parent, otherwise empty filepath
         */
-        static int has_parent(const std::filesystem::path& path);
+        static std::filesystem::path has_parent(const std::filesystem::path& path);
 
 
     private:

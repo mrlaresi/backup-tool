@@ -55,7 +55,21 @@ class FileInOut {
         * Sets backup location
         * @param path filepath
         */
-        void set_backup(const std::filesystem::path&);
+        void set_backup_dest(const std::filesystem::path&);
+
+
+        /**
+        * Returns vector containing backups in string format
+        * @return vector containing backups in string fomrat
+        */ 
+        std::vector<std::string> get_backups();
+
+
+        /**
+        * Returns backup destination in string format
+        * @return backup destination in string format
+        */
+        std::string get_destination();
 
 
     private:
@@ -78,13 +92,13 @@ class FileInOut {
         time_t modify_time(const std::string&);
 
         /**
-        * Recursively copies the contents of the source folder into the 
-        * destination folder. 
+        * Recursively copies the contents of the source folder or the target
+        * file into the destination folder. 
         * @param source Folder to be copied
         * @param destination Location where path1 will be copied to
         * @return std::error_code
         */
-        std::error_code copy_folder (const std::filesystem::path&, const std::filesystem::path&);
+        std::error_code copy(const std::filesystem::path&, const std::filesystem::path&);
         
         /**
         * Get current local time
