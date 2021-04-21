@@ -35,7 +35,21 @@ class Core {
         * @return 1 if valid, otherwise 0
         */
         int parse_input(const std::string&, const std::string&);
+
+        /**
+        * Gets list of paths to be backed up inside a vector in string format
+        * @return vector containing backup paths in string format
+        */ 
+        std::vector<std::string> get_backups();
+        
+        /**
+        * Gets backup destination
+        * @return backup destination
+        */
+        std::string get_destination();
+
     private:
+        void set_settings(const std::vector<std::string>&);
 };
 
 #endif

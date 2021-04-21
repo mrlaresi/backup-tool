@@ -31,6 +31,22 @@ void NoGui::remove_backup(const std::vector<std::string>& input) {
 }
 
 
+void NoGui::get_backups() {
+    std::vector<std::string> paths = core.get_backups();
+    std::cout << "Following paths will be copied on backup:\n";
+    for (unsigned i = 0; i < paths.size(); i++) {
+        std::cout << "  " << paths[i] << "\n";
+    }
+}
+
+
+void NoGui::get_destination() {
+    std::string path = core.get_destination();
+    std::cout << "Files will be copied to following directory:\n";
+    std::cout << "  " << path << "\n";
+}
+
+
 std::vector<std::string> NoGui::get_input() {
     std::string stri;
     std::cout << "Enter command > ";
@@ -51,8 +67,10 @@ void NoGui::help() {
     std::cout << "  exit: terminates the program\n";
     std::cout << "  backup: backups files\n";
     std::cout << "  add <path>: adds given filepath to list of files which will be backed up\n";
-    std::cout << "  remove <path>: removes given filepath from the list of files";
-    std::cout << "  help: prints this help text" << std::endl;
+    std::cout << "  remove <path>: removes given filepath from the list of files\n";
+    std::cout << "  filepaths: prints list of filepaths which will be backed up\n";
+    std::cout << "  destination: prints the backup destination\n";
+    std::cout << "  help: prints this help text\n";
 }
 
 int NoGui::nogui_loop() {
@@ -64,6 +82,8 @@ int NoGui::nogui_loop() {
         else if (answer[0] == "backup") { this->backup(); }
         else if (answer[0] == "add") { this->add_backup(answer); }
         else if (answer[0] == "remove") { this->remove_backup(answer); }
+        else if (answer[0] == "filepaths") {this->get_backups(); }
+        else if (answer[0] == "destination") {this->get_destination(); }
         else if (answer[0] == "help") { this->help(); }
         else { std::cout << "Unknown input" << std::endl; }
     }
