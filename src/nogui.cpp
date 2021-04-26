@@ -1,10 +1,13 @@
 #include "nogui.h"
 #include "core.h"
+
 #include <iostream>
 #include <filesystem>
+#include <thread>
 
 
-NoGui::NoGui() {
+NoGui::NoGui(Invoker *invoker) {
+    this->invoker = invoker;
     if (!core.is_first()) {
         this->first_time();
     }
@@ -12,8 +15,12 @@ NoGui::NoGui() {
 }
 
 
+NoGui::~NoGui() {}
+
+
 void NoGui::backup() {
-    core.backup();
+    //core.backup();
+    invoker->do_backup();
 }
 
 
@@ -73,6 +80,7 @@ void NoGui::help() {
     std::cout << "  help: prints this help text\n";
 }
 
+
 int NoGui::nogui_loop() {
     std::cout << "Type 'help' to see all available commands.\nType 'exit' to exit the program." << std::endl;
     std::vector<std::string> answer;
@@ -89,6 +97,12 @@ int NoGui::nogui_loop() {
     }
     return 1;
 }
+
+
+/*int NoGui::backup_loop() {
+    std::cout << "lööps\n";
+    return core.backup_loop();
+}*/
 
 
 void NoGui::first_time() {
@@ -108,7 +122,13 @@ void NoGui::first_time() {
 }
 
 
-int main() {
+/*int main() {
     NoGui g;
-    g.nogui_loop();   
-}
+    g.nogui_loop();
+    std::thread first(&NoGui::nogui_loop, &g);   
+    std::thread second(&NoGui::backup_loop, &g);
+    first.join();
+    second.join();
+    std::cout << "exit\n";
+    return 0;
+}*/

@@ -1,18 +1,23 @@
 #ifndef BACKUP_NOGUI_H
 #define BACKUP_NOGUI_H
 
+#include "baseui.h"
 #include "core.h"
+#include "invoker.h"
+
 #include <vector>
 
-class NoGui {
+class NoGui : public BaseUI {
     private:
+        Invoker *invoker;
         Core core;
 
     public:
         /** 
         * Default constructor 
         * */
-        NoGui();
+        NoGui(Invoker*);
+        ~NoGui();
 
         /** 
         * Backups modified files 
@@ -56,6 +61,9 @@ class NoGui {
         * Main loop for terminal program
         */
         int nogui_loop();
+
+
+        //int backup_loop();
 
     private:
         void first_time();

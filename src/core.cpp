@@ -1,6 +1,8 @@
 #include "core.h"
+
 #include <iostream>
 #include <fstream>
+#include <thread>
 
 namespace fs = std::filesystem;
 
@@ -71,16 +73,30 @@ std::string Core::get_destination() {
 }
 
 
+/*int Core::backup_loop() {
+    while (true) {
+        std::cout << fio.get_destination() << "\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+        std::cout << fio.get_destination() << "\n";
+        return 1;
+    }
+}*/
+
+
 void Core::set_settings(const std::vector<std::string>& settings) {
     std::stringstream ss;
     std::string setting, value;
     for (unsigned i = 0; i < settings.size(); i++) {
         ss << settings[i];
-        ss >> setting >> value;
+        std::getline(ss, setting, '=');
+        ss >> value;
         if (setting == "destination") {
             std::filesystem::path p = Validator::validate_path(value);
             if (p == "") { continue; }
             fio.set_backup_dest(p);
+        }
+        if (setting == "saveInterval") {
+
         }
         // clear stringstream
         std::stringstream().swap(ss);

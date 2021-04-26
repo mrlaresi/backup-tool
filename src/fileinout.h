@@ -5,6 +5,9 @@
 #include <vector> // std::vector
 
 
+/** 
+* Handles the filesystem operations.
+*/
 class FileInOut {
     private:
         /** time of last backup */

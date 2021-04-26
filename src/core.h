@@ -7,11 +7,8 @@
 class Core {
     private:
         FileInOut fio;
-        std::vector<std::string> user_settings = {
-            "destination",
-            "interval",
-            "storedCount"
-        };
+
+
     public:
         /** Default constructor */
         Core();
@@ -47,6 +44,8 @@ class Core {
         * @return backup destination
         */
         std::string get_destination();
+
+        //int backup_loop();
 
     private:
         void set_settings(const std::vector<std::string>&);
