@@ -19,11 +19,21 @@ class Core {
         /** Performs first time setup operation */
         int first_time();
         /** Performs backup operation */
-        int backup();
-        /** Adds filepath to files to be backed up */
-        int add_backup(const std::vector<std::string>&);
-        /** Removes filepath from the backup list */
-        int remove_backup(const std::vector<std::string>&);
+        std::string backup();
+        
+        /** 
+        * Adds filepath to files to be backed up 
+        * @param input path to a directory or a file
+        * @return status message
+        */
+        std::string add_backup(const std::string&);
+
+        /** 
+        * Removes filepath from the backup list 
+        * @param input path to a directory or a file
+        * @return status message
+        */
+        std::string remove_backup(const std::string&);
 
         /** 
         * Parses user input from first time setup 
@@ -37,7 +47,7 @@ class Core {
         * Gets list of paths to be backed up inside a vector in string format
         * @return vector containing backup paths in string format
         */ 
-        std::vector<std::string> get_backups();
+        std::string get_backups();
         
         /**
         * Gets backup destination

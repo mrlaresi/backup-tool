@@ -140,16 +140,17 @@ void FileInOut::set_backup_dest(const fs::path& path) {
 }
 
 
-std::vector<std::string> FileInOut::get_backups() {
-    std::vector<std::string> stri;
+std::string FileInOut::get_backups() {
+    std::string stri;
+    stri += "Following files will be copied on backup:\n";
     for (unsigned i = 0; i < backup_paths.size(); i++) {
-        stri.push_back(backup_paths[i].string());
+        stri += "  " + backup_paths[i].string() + "\n";
     }
     return stri;
 }
 
 std::string FileInOut::get_destination() {
-    return backup_dest.string();
+    return "Files will be copied to following directory:\n  " + backup_dest.string() + "\n";
 }
 
 

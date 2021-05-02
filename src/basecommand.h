@@ -5,9 +5,11 @@
 
 #include <string>
 
+/**
+* Abstract class used to build commands from.
+*/
 class BaseCommand {
     protected:
-        std::string result;
         Core *core;
     public:
         virtual ~BaseCommand();
@@ -15,13 +17,7 @@ class BaseCommand {
         /**
         * Execute command
         */ 
-        virtual void execute() = 0;
-
-        /**
-        * Return results from execute action.
-        * @return result of the execute command
-        */
-        std::string get_result();
+        virtual std::string execute(const std::string& = "") = 0;
 
         /**
         * Set core pointer

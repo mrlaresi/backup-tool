@@ -65,7 +65,7 @@ class FileInOut {
         * Returns vector containing backups in string format
         * @return vector containing backups in string fomrat
         */ 
-        std::vector<std::string> get_backups();
+        std::string get_backups();
 
 
         /**

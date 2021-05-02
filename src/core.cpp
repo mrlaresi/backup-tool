@@ -37,23 +37,25 @@ int Core::first_time() {
 }
 
 
-int Core::backup() {
+std::string Core::backup() {
     fio.backup();
-    return 1;
+    return "";
 }
 
 
-int Core::add_backup(const std::vector<std::string>& inputs) {
-    fs::path p = Validator::validate_path(inputs[1]);
+std::string Core::add_backup(const std::string &input) {
+    fs::path p = Validator::validate_path(input);
     if (p == "") { return 0; }
-    return fio.add_backup(p);
+    fio.add_backup(p);
+    return "";
 }
 
 
-int Core::remove_backup(const std::vector<std::string>& inputs) {
-    fs::path p = Validator::validate_path(inputs[1]);
+std::string Core::remove_backup(const std::string &input) {
+    fs::path p = Validator::validate_path(input);
     if (p == "") { return 0; }
-    return fio.remove_backup(p);
+    fio.remove_backup(p);
+    return "";
 }
 
 
@@ -63,7 +65,7 @@ int Core::parse_input(const std::string& setting, const std::string& input) {
 }
 
 
-std::vector<std::string> Core::get_backups() {
+std::string Core::get_backups() {
     return fio.get_backups();
 }
 
