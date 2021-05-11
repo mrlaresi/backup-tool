@@ -5,6 +5,9 @@
 #include <vector> // std::vector
 
 
+/** 
+* Handles the filesystem operations.
+*/
 class FileInOut {
     private:
         /** time of last backup */
@@ -62,7 +65,7 @@ class FileInOut {
         * Returns vector containing backups in string format
         * @return vector containing backups in string fomrat
         */ 
-        std::vector<std::string> get_backups();
+        std::string get_backups();
 
 
         /**
