@@ -4,46 +4,43 @@
 #include <filesystem> // traversing files
 #include <vector> // std::vector
 
-
 /** 
 * Handles the filesystem operations.
 */
 class FileInOut {
-    private:
-        /** time of last backup */
-        time_t last_backup = -1; 
-        /** all the paths */
-        std::vector<std::filesystem::path> backup_paths;
-        /** backup file */
-        std::filesystem::path backup_addr;
-        /** destination of backups */ 
-        std::filesystem::path backup_dest;
-
-
     public:
-        /** 
-        * Default constructor 
-        * @param addr filepath to file containing backups
-        * @param dest filepath to folder where backups will be made
+        /**
+        * Writes a line of text to the end of a file
+        * @param file_path to the file that will be written to
+        * @param text that will be written to the file
+        * @return empty string or an error message
         */
-        FileInOut(const std::string& addr="./back.txt", const std::string& dest="./backup");
+        static std::string write_to_file(const std::filesystem::path&, const std::string&);
 
-        /** Recursively copies folder and it's contents to 'backup_dest'. */
-        void backup();
 
         /**
-        * Adds new file path to the list of backups
-        * @param path path to a folder or a file
-        * @return 1 if success, otherwise 0
+        * Creates new file at filepath
+        * @param file_path to the file that will be created
+        * @return status message from the operation
         */
-        int add_backup(const std::filesystem::path&);
+        static std::string create_file(const std::filesystem::path&);
+
 
         /**
-        * Removes file path from the list of backups
-        * @param path path to a folder or a file
-        * @return 1 if success, otherwise 0
+        * Creates new folder at filepath
+        * @param file_path to the folder that will be created
+        * @return status message from the operation
         */
-        int remove_backup(const std::filesystem::path&);
+        static std::string create_folder(const std::filesystem::path&);
+
+
+        /**
+        * Removes line of text from a file
+        * @param file_path path to the file
+        * @param text that will be removed from the file
+        * @return empty string or an error message
+        */
+        static std::string remove_line(const std::filesystem::path&, const std::string&);
         
 
         /**
@@ -51,71 +48,40 @@ class FileInOut {
         * @param path filepath
         * @return lines from the file in inside a vector
         */
-        std::vector<std::string> read_file(const std::filesystem::path&);
+        static std::vector<std::string> read_file(const std::filesystem::path&);
 
-        
+
         /**
-        * Sets backup location
+        * Parses the stem of a filename from given filename
         * @param path filepath
+        * @return the stem of path
         */
-        void set_backup_dest(const std::filesystem::path&);
+        static std::filesystem::path fetch_filename_stem(const std::filesystem::path&);
 
-
-        /**
-        * Returns vector containing backups in string format
-        * @return vector containing backups in string fomrat
-        */ 
-        std::string get_backups();
-
-
-        /**
-        * Returns backup destination in string format
-        * @return backup destination in string format
-        */
-        std::string get_destination();
-
-
-    private:
-        /**
-        * Reads backup paths from the file 'backup_addr'
-        * @return 1 if reading file failed, otherwise 0.
-        */
-        void read_backup();
-
-        /**
-        * Writes filepaths currently in memory to the backup file
-        */
-        void update_file();
         
         /**
         * Returns the date and time of the last modification done to a given file 
         * in time_t format.
         * @param path path to a folder or a file
         */
-        time_t modify_time(const std::string&);
+        static time_t modify_time(const std::string&);
+
 
         /**
-        * Recursively copies the contents of the source folder or the target
-        * file into the destination folder. 
-        * @param source Folder to be copied
-        * @param destination Location where path1 will be copied to
-        * @return std::error_code
+        * Recursively copies the contents of the source folder or file
+        * into the destination folder. 
+        * @param source Folder or a file to be copied
+        * @param destination Location where source will be copied to
+        * @return std::error_code if an error happened
         */
-        std::error_code copy(const std::filesystem::path&, const std::filesystem::path&);
+        static std::error_code copy(const std::filesystem::path&, const std::filesystem::path&);
         
+
         /**
         * Get current local time
         * @return local time in yyyymmdd_hhmm format
         */
-        std::string get_time();
-
-        /**
-        * Check if given filepath already exists on the list of paths to 
-        * be backed up.
-        * @param path path to a folder or a file
-        * @return Iterator pointing to found item or vector<T>.end()
-        */
-        std::vector<std::filesystem::path>::iterator exists(const std::filesystem::path&);
+        static std::string get_time();
 };
 
 #endif

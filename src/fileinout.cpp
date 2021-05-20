@@ -1,12 +1,9 @@
-#include "validator.h"
-#include "fileinout.h"
 #include <fstream> // io file
-#include <iostream> // input output
-#include <sstream> // string stream
 #include <filesystem> // traversing files
 #include <vector> // std::vector
-#include <algorithm> // std::find
 
+#include "validator.h"
+#include "fileinout.h"
 
 // Until C++20 standard gets implimented in compilers:
 // {
@@ -25,94 +22,74 @@
 
 namespace fs = std::filesystem;
 
-FileInOut::FileInOut(const std::string& addr, const std::string& dest) {
-    fs::path default_addr = addr;
-    fs::path default_dest = dest; // TODO: placeholder
-    backup_addr = Validator::validate_path(default_addr);
-    backup_dest = Validator::validate_path(default_dest);
-    fs::path parent, helper;
-    if (backup_addr == "") {
-        parent = Validator::has_parent(addr);
-        if (parent != "") {
-            std::cout << "File containing backups doesn't exist. Creating" << std::endl;
-            std::fstream file;
-            //std::cout << fs::absolute(addr) << "\n";
-            helper = addr;
-            file.open(parent / helper.filename(), std::fstream::app);
-            file.close();
-            backup_addr = Validator::validate_path(default_addr);
-        }
+
+std::string FileInOut::write_to_file(const fs::path& file_path, const std::string& text) {
+    fs::path p = Validator::validate_path(file_path);
+    if (p == "") {
+        return "Invalid path.\n";
     }
     
-    if (backup_dest == "") {
-        parent = Validator::has_parent(addr);
-        if (parent != "") {
-            helper = dest;
-            fs::create_directory(backup_dest / helper.filename());
-            backup_dest = Validator::validate_path(default_dest);
-        }
-    }
-    read_backup();
-}
-    
-
-void FileInOut::backup() {
-    time_t current_time = std::time(nullptr);
-    unsigned count = 0;
-    unsigned skip = 0;
-    fs::path folder_name = get_time();
-    std::cout << "Performing backup on " << backup_paths.size() << " locations.\n";
-    // subdirectory with date and time of the backup
-    fs::create_directory(backup_dest / folder_name);
-
-    for (unsigned i = 0; i < backup_paths.size(); i++) {
-        // Do nothing if file hasn't been modified
-        if (modify_time(backup_paths[i]) < last_backup) { skip++; continue; }
-        std::cout << "Copying " << backup_paths[i] << " to " << backup_dest << "\n";
-        std::error_code error = copy(backup_paths[i], backup_dest / folder_name);
-        
-        // Shouldn't happen unless file located at the filepath was removed
-        if (error) {
-            std::cout << "Something went wrong while copying files from " << backup_paths[i] << "\n";
-            continue;
-        }
-        count++;
-    }
-        
-    std::cout << "Done. Total " << count << " folders backed up.\n";
-    std::cout << "Skipped " << skip << " folders as no modifications had been made\n";
-    if (count > 0) {
-        last_backup = current_time;
-    }
-}
-
-
-int FileInOut::add_backup(const fs::path& path) {
-    auto it = exists(path);
-    if (it != backup_paths.end()) {
-        std::cout << "Filepath already exists on the list. No changes were made.\n";
-        return 0;
-    }
     std::fstream file;
     // Will create new file if the file doesn't exist
-    file.open(backup_addr, std::fstream::out | std::fstream::app);
-    file << path.string() << "\n";
+    file.open(file_path, std::fstream::out | std::fstream::app);
+    // Should only be reached if the file is already in use
+    if (file.fail()) {
+        return "Unexpected error occurred. File might already be in use.\n";
+    }
+    file << text << "\n";
     file.close();
-    backup_paths.push_back(path);
-    std::cout << "Added filepath " << path.string() << "\n";
-    return 1;
+    return "";
 }
 
 
-int FileInOut::remove_backup(const fs::path& path) {
-    auto it = exists(path);
-    if (it == backup_paths.end()) {
-        return 0; 
+std::string FileInOut::create_file(const fs::path& file_path) {
+    fs::path parent = Validator::has_parent(file_path);
+    if (parent != "") {
+        std::fstream file;
+        file.open(file_path, std::fstream::app);
+        file.close();
+        return "File created: " + (parent / file_path).string() + "\n";
     }
-    backup_paths.erase(it);
-    std::cout << "Removed filepath " << path.string() << "\n";
-    update_file();
-    return 1;
+    return "Invalid filepath.\n";
+}
+
+
+std::string FileInOut::create_folder(const fs::path& file_path) {
+    fs::path parent = Validator::has_parent(file_path);
+    if (parent != "") {
+        fs::create_directory(file_path);
+        return "Folder created: " + (parent / file_path).string() + "\n";
+    }
+    return "Invalid filepath.\n";
+}
+
+
+std::string FileInOut::remove_line(const fs::path& file_path, const std::string& text) {
+    fs::path p = Validator::validate_path(file_path);
+    if (p == "") {
+        return "Invalid path.\n";
+    }
+    fs::path new_file = p.parent_path() / "placeholder.txt";
+    std::fstream original, modified;
+    original.open(file_path, std::fstream::in);
+    if (original.fail()) {
+        return "Unexpected error occurred. File might already be in use.\n";
+    }
+    modified.open(new_file, std::fstream::out | std::fstream::trunc);
+    if (modified.fail()) {
+        return "Unexpected error occurred. File might already be in use.\n";
+    }
+    std::string line;
+    while (getline(original, line)) {
+        if (line != text) {
+            modified << line << "\n";
+        }
+    }
+    original.close();
+    modified.close();
+    fs::remove(p);
+    fs::rename(new_file, p);
+    return "";
 }
 
 
@@ -122,7 +99,6 @@ std::vector<std::string> FileInOut::read_file(const fs::path& path) {
     file.open(path, std::fstream::in);
 
     if (file.fail()) { 
-        std::cerr << "Encountered error reading backup paths.\n";
         return lines; 
     }
 
@@ -135,49 +111,8 @@ std::vector<std::string> FileInOut::read_file(const fs::path& path) {
 }
 
 
-void FileInOut::set_backup_dest(const fs::path& path) {
-    backup_dest = path;
-}
-
-
-std::string FileInOut::get_backups() {
-    std::string stri;
-    stri += "Following files will be copied on backup:\n";
-    for (unsigned i = 0; i < backup_paths.size(); i++) {
-        stri += "  " + backup_paths[i].string() + "\n";
-    }
-    return stri;
-}
-
-std::string FileInOut::get_destination() {
-    return "Files will be copied to following directory:\n  " + backup_dest.string() + "\n";
-}
-
-
-void FileInOut::read_backup() {
-    fs::path p;
-    std::vector<std::string> lines = this->read_file(backup_addr);
-    for (unsigned i = 0; i < lines.size(); i++) {
-        if (lines[i] == "") { continue; }
-        p = lines[i]; 
-        p = Validator::validate_path(p);
-        if (p == "") {
-            std::cerr << "Invalid file location: " << lines[i] << "\n";
-            continue;
-        }
-        backup_paths.push_back(p);
-    }
-}
-
-
-void FileInOut::update_file() {
-    std::fstream file;
-    file.open(backup_addr, std::fstream::out | std::fstream::trunc);
-    for (unsigned i = 0; i < backup_paths.size(); i++) {
-        file << backup_paths[i].string() << "\n";
-    }
-    file.close();
-    std::cout << "Refreshed backup file.\n";
+fs::path FileInOut::fetch_filename_stem(const fs::path& path) {
+    return path.stem().string();
 }
 
 
@@ -199,6 +134,10 @@ time_t FileInOut::modify_time(const std::string &path) {
 
 std::error_code FileInOut::copy(const fs::path &source, const fs::path &destination) {
     std::error_code error;
+    // if directory, do recursive
+    if (!Validator::validate_directory(destination)) {
+        create_folder(destination);
+    }
     if (Validator::validate_directory(source)) {
         fs::copy(source, destination / source.filename(), fs::copy_options::recursive, error);
         return error;
@@ -215,9 +154,4 @@ std::string FileInOut::get_time() {
     std::string ret;
     ss >> ret;
     return ret;
-}
-
-std::vector<fs::path>::iterator FileInOut::exists(const fs::path& path) {
-    std::vector<fs::path>::iterator it = std::find(backup_paths.begin(), backup_paths.end(), path);
-    return it;
 }
